@@ -31,7 +31,7 @@ public class Ball : MonoBehaviour
             runtimeSize = 1f;
             runtimeWeight = 1f;
             runtimePoints = 1;
-            runtimeLaunchVelocity = 100f;
+            runtimeLaunchVelocity = 50f;
         }
 
         inHand = false;
