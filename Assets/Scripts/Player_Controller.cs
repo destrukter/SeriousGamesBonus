@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using System;
+using TMPro;
 using UnityEngine.InputSystem;
 
 public class Player_Controller : MonoBehaviour
@@ -12,15 +12,12 @@ public class Player_Controller : MonoBehaviour
     [SerializeField] Transform handPileParent;
     [SerializeField] Transform playPileParent;
     [SerializeField] Transform discardPileParent;
-
-    //List<Joker> jokers = new List<Joker>();
+    [SerializeField] Transform playOrigin;
 
     List<Ball> drawPile = new List<Ball>();
     List<Ball> handPile = new List<Ball>();
     List<Ball> playPile = new List<Ball>();
     List<Ball> discardPile = new List<Ball>();
-
-    Roulette_Controller roulette;
 
     [SerializeField] int num_draw = 3;
     [SerializeField] int hand_size = 5;
@@ -37,6 +34,7 @@ public class Player_Controller : MonoBehaviour
         {
             Events.current.OnBallClicked += OnBallClicked;
         }
+
         GenerateStartingDeck(10);
         StartRound();
     }
@@ -51,10 +49,7 @@ public class Player_Controller : MonoBehaviour
 
     void Update()
     {
-        //handle state changes and next button click
-        //when enter is clicked
-        //also handle shop?
-        if (IsConfirmPressed())
+        if (play_state == PlayState.selectBalls && IsConfirmPressed())
         {
             PlayBalls();
             PostRound();
@@ -73,12 +68,14 @@ public class Player_Controller : MonoBehaviour
     {
         if (play_state != PlayState.drawBalls)
             return;
+
         int needed = Mathf.Max(0, hand_size - handPile.Count);
         int drawCount = Mathf.Min(num_draw, needed);
 
         if (drawCount <= 0)
         {
             play_state = PlayState.selectBalls;
+            UpdatePileCounters();
             return;
         }
 
@@ -86,10 +83,12 @@ public class Player_Controller : MonoBehaviour
         {
             RefillDrawPileFromDiscard();
         }
+
         drawCount = Mathf.Min(drawCount, drawPile.Count);
         if (drawCount <= 0)
         {
             play_state = PlayState.selectBalls;
+            UpdatePileCounters();
             return;
         }
 
@@ -103,11 +102,12 @@ public class Player_Controller : MonoBehaviour
         {
             drawPile.Remove(ball);
             handPile.Add(ball);
-            MoveBallToPile(ball, handPileParent, handPile.Count - 1);
+            MoveBallToPile(ball, handPileParent);
             ball.ToggleHand();
         }
 
         play_state = PlayState.selectBalls;
+        UpdatePileCounters();
     }
 
     private void OnBallClicked(Ball ball)
@@ -122,16 +122,18 @@ public class Player_Controller : MonoBehaviour
 
             handPile.Remove(ball);
             playPile.Add(ball);
-            MoveBallToPile(ball, playPileParent, playPile.Count - 1);
+            MoveBallToPile(ball, playPileParent);
             ball.ToggleHand();
         }
         else if (playPile.Contains(ball))
         {
             playPile.Remove(ball);
             handPile.Add(ball);
-            MoveBallToPile(ball, handPileParent, handPile.Count - 1);
+            MoveBallToPile(ball, handPileParent);
             ball.ToggleHand();
         }
+
+        UpdatePileCounters();
     }
 
     void GenerateStartingDeck(int amount)
@@ -143,29 +145,35 @@ public class Player_Controller : MonoBehaviour
 
         for (int i = 0; i < amount; i++)
         {
-            GameObject obj = Instantiate(ballPrefab, drawPileParent);
+            GameObject obj = Instantiate(ballPrefab);
             Ball ball = obj.GetComponent<Ball>();
-
             ball.Initialize();
 
             drawPile.Add(ball);
-            MoveBallToPile(ball, drawPileParent, i);
+            MoveBallToPile(ball, drawPileParent);
         }
+
+        UpdatePileCounters();
     }
 
     public void SelectBalls()
     {
         play_state = PlayState.selectBalls;
+        UpdatePileCounters();
     }
 
     public void PlayBalls()
     {
-        if (play_state != PlayState.selectBalls && play_state != PlayState.playBalls)
+        if (play_state != PlayState.selectBalls)
             return;
 
         play_state = PlayState.playBalls;
+
         if (playPile.Count == 0)
+        {
+            UpdatePileCounters();
             return;
+        }
 
         int roundPoints = 0;
         for (int i = playPile.Count - 1; i >= 0; i--)
@@ -173,9 +181,12 @@ public class Player_Controller : MonoBehaviour
             Ball ball = playPile[i];
             roundPoints += ball.GetPoints();
 
+            SpawnBallForPlay(ball);
+
             playPile.RemoveAt(i);
             discardPile.Add(ball);
-            MoveBallToPile(ball, discardPileParent, discardPile.Count - 1);
+            MoveBallToPile(ball, discardPileParent);
+
             if (ball.InHand)
             {
                 ball.ToggleHand();
@@ -184,44 +195,74 @@ public class Player_Controller : MonoBehaviour
 
         totalPoints += roundPoints;
         Debug.Log($"Round points: {roundPoints}. Total points: {totalPoints}");
-        play_state = PlayState.postRound;
+
+        UpdatePileCounters();
     }
 
     void PostRound()
     {
-        if (play_state != PlayState.postRound)
+        if (play_state != PlayState.playBalls)
             return;
 
         for (int i = handPile.Count - 1; i >= 0; i--)
         {
-
             Ball ball = handPile[i];
             handPile.RemoveAt(i);
             discardPile.Add(ball);
-            MoveBallToPile(ball, discardPileParent, discardPile.Count - 1);
+            MoveBallToPile(ball, discardPileParent);
+
             if (ball.InHand)
             {
                 ball.ToggleHand();
             }
         }
 
-        StartRound();
+        play_state = PlayState.postRound;
+        UpdatePileCounters();
     }
 
     public void StartRound()
     {
+        if (play_state != PlayState.postRound && play_state != PlayState.drawBalls)
+            return;
+
         play_state = PlayState.drawBalls;
         DrawBalls();
     }
 
-    private void MoveBallToPile(Ball ball, Transform parent, int index)
+    private void SpawnBallForPlay(Ball ball)
+    {
+        if (ball == null || playOrigin == null)
+            return;
+
+        ball.transform.SetParent(playOrigin.parent);
+        ball.transform.position = playOrigin.position;
+        ball.transform.rotation = playOrigin.rotation;
+
+        Rigidbody rb = ball.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            float randomAngle = Random.Range(-25f, 25f);
+            Vector3 direction = Quaternion.AngleAxis(randomAngle, playOrigin.up) * playOrigin.forward;
+            rb.velocity = direction.normalized * ball.GetLaunchVelocity();
+        }
+    }
+
+    private void MoveBallToPile(Ball ball, Transform parent)
     {
         if (ball == null || parent == null)
             return;
 
         ball.transform.SetParent(parent);
-        ball.transform.localPosition = new Vector3(0f, 0f, index * 0.25f);
-        ball.transform.localRotation = Quaternion.identity;
+        ball.transform.position = parent.position;
+        ball.transform.rotation = parent.rotation;
+
+        Rigidbody rb = ball.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
     }
 
     private void RefillDrawPileFromDiscard()
@@ -237,17 +278,38 @@ public class Player_Controller : MonoBehaviour
         {
             Ball ball = shuffled[i];
             drawPile.Add(ball);
-            MoveBallToPile(ball, drawPileParent, drawPile.Count - 1);
+            MoveBallToPile(ball, drawPileParent);
         }
+
+        UpdatePileCounters();
+    }
+
+    private void UpdatePileCounters()
+    {
+        UpdatePileCounter(drawPileParent, drawPile.Count);
+        UpdatePileCounter(discardPileParent, discardPile.Count);
+        UpdatePileCounter(handPileParent, handPile.Count, hand_size);
+        UpdatePileCounter(playPileParent, playPile.Count, play_size);
+    }
+
+    private void UpdatePileCounter(Transform pileRoot, int count, int? max = null)
+    {
+        if (pileRoot == null)
+            return;
+
+        Transform numTransform = pileRoot.Find("Num");
+        if (numTransform == null)
+            return;
+
+        TMP_Text label = numTransform.GetComponent<TMP_Text>();
+        if (label == null)
+            return;
+
+        label.text = max.HasValue ? $"{count}/{max.Value}" : count.ToString();
     }
 
     public PlayState GetPlayState()
     {
         return play_state;
-    }
-
-    public void NextPlayState()
-    {
-        play_state = play_state++;
     }
 }

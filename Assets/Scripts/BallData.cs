@@ -7,4 +7,5 @@ public class BallData : ScriptableObject
     public int points;
     public float weight;
     public float size;
+    public float launchVelocity = 6f;
 }

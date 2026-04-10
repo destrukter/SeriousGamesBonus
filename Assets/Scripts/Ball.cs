@@ -8,6 +8,7 @@ public class Ball : MonoBehaviour
     private int runtimePoints;
     private float runtimeWeight;
     private float runtimeSize;
+    private float runtimeLaunchVelocity;
 
     private bool inHand = false;
 
@@ -22,6 +23,7 @@ public class Ball : MonoBehaviour
             runtimeSize = data.size <= 0f ? 1f : data.size;
             runtimeWeight = data.weight <= 0f ? 1f : data.weight;
             runtimePoints = data.points;
+            runtimeLaunchVelocity = data.launchVelocity <= 0f ? 6f : data.launchVelocity;
         }
         else
         {
@@ -29,6 +31,7 @@ public class Ball : MonoBehaviour
             runtimeSize = 1f;
             runtimeWeight = 1f;
             runtimePoints = 1;
+            runtimeLaunchVelocity = 6f;
         }
 
         inHand = false;
@@ -60,5 +63,10 @@ public class Ball : MonoBehaviour
     public float GetSize()
     {
         return runtimeSize;
+    }
+
+    public float GetLaunchVelocity()
+    {
+        return runtimeLaunchVelocity;
     }
 }
