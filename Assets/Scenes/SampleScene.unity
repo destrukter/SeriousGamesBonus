@@ -2001,10 +2001,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: RouletteNew
       objectReference: {fileID: 0}
+    - target: {fileID: 5233112405309087440, guid: 873c6f9693d4fc849a75c36d61fa1d8e, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 873c6f9693d4fc849a75c36d61fa1d8e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1029034948}
     - targetCorrespondingSourceObject: {fileID: 5233112405309087440, guid: 873c6f9693d4fc849a75c36d61fa1d8e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2021486904}
@@ -2015,6 +2022,28 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 650886049}
   m_SourcePrefab: {fileID: 100100000, guid: 873c6f9693d4fc849a75c36d61fa1d8e, type: 3}
+--- !u!1 &1029034945 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 873c6f9693d4fc849a75c36d61fa1d8e, type: 3}
+  m_PrefabInstance: {fileID: 1029034944}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1029034948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1029034945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1af60cd594e1284f885d3a589dae380, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Roulette_Controller
+  spinDurationSeconds: 2.8
+  spinForceMin: 260
+  spinForceMax: 420
+  roulettePart1: {fileID: 949412098}
+  roulettePart2: {fileID: 650886045}
 --- !u!1 &1033166009
 GameObject:
   m_ObjectHideFlags: 0
@@ -2784,6 +2813,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1af60cd594e1284f885d3a589dae380, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Roulette_Controller
+  spinDurationSeconds: 2.8
+  spinForceMin: 260
+  spinForceMax: 420
+  roulettePart1: {fileID: 0}
+  roulettePart2: {fileID: 0}
 --- !u!4 &1407128327
 Transform:
   m_ObjectHideFlags: 0

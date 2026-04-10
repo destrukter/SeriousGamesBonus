@@ -7,6 +7,11 @@ public class Roulette_Controller : MonoBehaviour
     [SerializeField] float spinForceMin = 260f;
     [SerializeField] float spinForceMax = 420f;
 
+    [SerializeField] GameObject roulettePart1;
+    [SerializeField] GameObject roulettePart2;
+    //Rigidbody rb1;
+    //Rigidbody rb2;
+
     Coroutine spinRoutine;
 
     private void OnEnable()
@@ -15,6 +20,8 @@ public class Roulette_Controller : MonoBehaviour
         {
             Events.current.OnPlayTriggered += OnPlayTriggered;
         }
+        //rb1 = roulettePart1.GetComponent<Rigidbody>();
+        //rb2 = roulettePart2.GetComponent<Rigidbody>();
     }
 
     private void OnDisable()
@@ -46,7 +53,8 @@ public class Roulette_Controller : MonoBehaviour
 
         float elapsed = 0f;
         float accumulatedDegrees = 0f;
-        Quaternion startRotation = transform.rotation;
+        Quaternion startRotation = roulettePart1.transform.localRotation;
+        Quaternion startRotation2 = roulettePart2.transform.localRotation;
 
         while (elapsed < duration)
         {
@@ -54,7 +62,8 @@ public class Roulette_Controller : MonoBehaviour
             float t = Mathf.Clamp01(elapsed / duration);
             float currentSpeed = Mathf.Lerp(startingSpeed, 0f, t);
             accumulatedDegrees += currentSpeed * Time.deltaTime;
-            transform.rotation = startRotation * Quaternion.Euler(0f, accumulatedDegrees, 0f);
+            roulettePart1.transform.localRotation = startRotation * Quaternion.Euler(0f, accumulatedDegrees, 0f);
+            roulettePart2.transform.localRotation = startRotation * Quaternion.Euler(0f, accumulatedDegrees, 0f);
             yield return null;
         }
 
