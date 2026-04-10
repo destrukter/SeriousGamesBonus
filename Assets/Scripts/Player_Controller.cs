@@ -31,15 +31,21 @@ public class Player_Controller : MonoBehaviour
 
     int totalPoints = 0;
     bool isSpawningPlayBalls = false;
+    Events subscribedEvents;
 
     public enum PlayState { drawBalls, selectBalls, playBalls, postRound }
     PlayState play_state = PlayState.postRound;
 
     private void Start()
     {
-        if (Events.current != null)
+        subscribedEvents = ResolveEventsInstance();
+        if (subscribedEvents != null)
         {
-            Events.current.OnBallClicked += OnBallClicked;
+            subscribedEvents.OnBallClicked += OnBallClicked;
+        }
+        else
+        {
+            Debug.LogWarning("Player_Controller could not find an Events instance during Start.");
         }
 
         GenerateStartingDeck(10);
@@ -48,9 +54,9 @@ public class Player_Controller : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (Events.current != null)
+        if (subscribedEvents != null)
         {
-            Events.current.OnBallClicked -= OnBallClicked;
+            subscribedEvents.OnBallClicked -= OnBallClicked;
         }
     }
 
@@ -191,10 +197,22 @@ public class Player_Controller : MonoBehaviour
 
     private void TriggerPlayEvent()
     {
-        if (Events.current == null)
+        Events eventsInstance = ResolveEventsInstance();
+        if (eventsInstance == null)
+        {
+            Debug.LogWarning("Play trigger requested, but no Events instance is available.");
             return;
+        }
 
-        Events.current.PlayTriggered();
+        eventsInstance.PlayTriggered();
+    }
+
+    private Events ResolveEventsInstance()
+    {
+        if (Events.current != null)
+            return Events.current;
+
+        return FindFirstObjectByType<Events>();
     }
 
     private IEnumerator SpawnPlayBallsRoutine()

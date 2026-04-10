@@ -13,12 +13,14 @@ public class Roulette_Controller : MonoBehaviour
     //Rigidbody rb2;
 
     Coroutine spinRoutine;
+    Coroutine subscribeRoutine;
+    bool isSubscribedToPlayEvent;
 
     private void OnEnable()
     {
-        if (Events.current != null)
+        if (!TrySubscribeToPlayEvent())
         {
-            Events.current.OnPlayTriggered += OnPlayTriggered;
+            subscribeRoutine = StartCoroutine(WaitForEventsAndSubscribe());
         }
         //rb1 = roulettePart1.GetComponent<Rigidbody>();
         //rb2 = roulettePart2.GetComponent<Rigidbody>();
@@ -26,10 +28,50 @@ public class Roulette_Controller : MonoBehaviour
 
     private void OnDisable()
     {
+        if (subscribeRoutine != null)
+        {
+            StopCoroutine(subscribeRoutine);
+            subscribeRoutine = null;
+        }
+
+        TryUnsubscribeFromPlayEvent();
+    }
+
+    private IEnumerator WaitForEventsAndSubscribe()
+    {
+        while (!isSubscribedToPlayEvent)
+        {
+            if (TrySubscribeToPlayEvent())
+            {
+                subscribeRoutine = null;
+                yield break;
+            }
+
+            yield return null;
+        }
+    }
+
+    private bool TrySubscribeToPlayEvent()
+    {
+        if (isSubscribedToPlayEvent || Events.current == null)
+            return false;
+
+        Events.current.OnPlayTriggered += OnPlayTriggered;
+        isSubscribedToPlayEvent = true;
+        return true;
+    }
+
+    private void TryUnsubscribeFromPlayEvent()
+    {
+        if (!isSubscribedToPlayEvent)
+            return;
+
         if (Events.current != null)
         {
             Events.current.OnPlayTriggered -= OnPlayTriggered;
         }
+
+        isSubscribedToPlayEvent = false;
     }
 
     private void OnPlayTriggered()
