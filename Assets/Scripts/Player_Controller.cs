@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using UnityEngine.InputSystem;
 
 public class Player_Controller : MonoBehaviour
 {
@@ -53,11 +54,19 @@ public class Player_Controller : MonoBehaviour
         //handle state changes and next button click
         //when enter is clicked
         //also handle shop?
-        if (Input.GetKeyDown(KeyCode.Return))
+        if (IsConfirmPressed())
         {
             PlayBalls();
             PostRound();
         }
+    }
+
+    bool IsConfirmPressed()
+    {
+        if (Keyboard.current == null)
+            return false;
+
+        return Keyboard.current.enterKey.wasPressedThisFrame || Keyboard.current.numpadEnterKey.wasPressedThisFrame;
     }
 
     void DrawBalls()
