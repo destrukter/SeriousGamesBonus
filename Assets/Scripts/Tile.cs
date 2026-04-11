@@ -16,10 +16,6 @@ public class Tile : MonoBehaviour
     [SerializeField] TileColor tileColor;
     [SerializeField] TMP_Text valueText;
 
-    static int redPoints;
-    static int bluePoints;
-    static int greenPoints;
-
     readonly HashSet<Ball> ballsInSlot = new HashSet<Ball>();
     bool subscribedToGameEnd;
 
@@ -104,19 +100,10 @@ public class Tile : MonoBehaviour
         if (ballsHere <= 0)
             return;
 
-        switch (tileColor)
-        {
-            case TileColor.Red:
-                redPoints += ballsHere;
-                break;
-            case TileColor.Green:
-                greenPoints += ballsHere;
-                break;
-            default:
-                bluePoints += ballsHere; // black slots are counted as blue points
-                break;
-        }
+        if (Events.current == null)
+            return;
 
-        Debug.Log($"Slot points => Red: {redPoints}, Blue: {bluePoints}, Green: {greenPoints}");
+        string colorKey = tileColor == TileColor.Black ? "Blue" : tileColor.ToString();
+        Events.current.PointsAwarded(ballsHere, colorKey);
     }
 }

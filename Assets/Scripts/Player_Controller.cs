@@ -28,8 +28,13 @@ public class Player_Controller : MonoBehaviour
     [SerializeField] int start_size = 20;
     [SerializeField] float playSpawnDelaySeconds = 0.15f;
     [SerializeField] float pileRandomOffsetXZ = 0.01f;
+    [SerializeField] TMP_Text roundScoreText;
 
     int totalPoints = 0;
+    int roundPoints = 0;
+    int roundRedPoints = 0;
+    int roundBluePoints = 0;
+    int roundGreenPoints = 0;
     bool isSpawningPlayBalls = false;
     int pendingStopEvents = 0;
     bool awaitingRoundCompletion = false;
@@ -46,6 +51,7 @@ public class Player_Controller : MonoBehaviour
         {
             subscribedEvents.OnBallClicked += OnBallClicked;
             subscribedEvents.OnStopTriggered += OnStopTriggered;
+            subscribedEvents.OnPointsAwarded += OnPointsAwarded;
         }
         else
         {
@@ -62,6 +68,7 @@ public class Player_Controller : MonoBehaviour
         {
             subscribedEvents.OnBallClicked -= OnBallClicked;
             subscribedEvents.OnStopTriggered -= OnStopTriggered;
+            subscribedEvents.OnPointsAwarded -= OnPointsAwarded;
         }
     }
 
@@ -321,8 +328,49 @@ public class Player_Controller : MonoBehaviour
         if (play_state != PlayState.postRound)
             return;
 
+        ResetRoundPoints();
         play_state = PlayState.drawBalls;
         DrawBalls();
+    }
+
+    private void ResetRoundPoints()
+    {
+        roundPoints = 0;
+        roundRedPoints = 0;
+        roundBluePoints = 0;
+        roundGreenPoints = 0;
+        UpdateRoundScoreText();
+    }
+
+    private void OnPointsAwarded(int points, string color)
+    {
+        if (points <= 0)
+            return;
+
+        roundPoints += points;
+
+        switch (color)
+        {
+            case "Red":
+                roundRedPoints += points;
+                break;
+            case "Green":
+                roundGreenPoints += points;
+                break;
+            default:
+                roundBluePoints += points;
+                break;
+        }
+
+        UpdateRoundScoreText();
+    }
+
+    private void UpdateRoundScoreText()
+    {
+        if (roundScoreText == null)
+            return;
+
+        roundScoreText.text = $"Round Score: {roundPoints}\nR: {roundRedPoints}  B: {roundBluePoints}  G: {roundGreenPoints}";
     }
 
     private void SpawnBallForPlay(Ball ball)
