@@ -114,6 +114,7 @@ public class Roulette_Controller : MonoBehaviour
         {
             SpawnRouletteTiles();
         }
+        //tileParent = this.gameObject.transform;
     }
 
     private void OnEnable()
@@ -169,7 +170,7 @@ public class Roulette_Controller : MonoBehaviour
             int value = TileValues[i];
 
             Vector3 direction = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
-            Vector3 localPosition = direction * tileRadius + Vector3.up * tileHeightOffset;
+            Vector3 localPosition = direction * tileHeightOffset;
 
             GameObject tileInstance = Instantiate(tilePrefab, parent);
             tileInstance.name = $"Tile_{i:00}_{value}";
@@ -257,7 +258,7 @@ public class Roulette_Controller : MonoBehaviour
             float currentSpeed = Mathf.Lerp(startingSpeed, 0f, t);
             accumulatedDegrees += currentSpeed * Time.deltaTime;
             roulettePart1.transform.localRotation = startRotation1 * Quaternion.Euler(0f, 0f, accumulatedDegrees);
-            roulettePart2.transform.localRotation = startRotation2 * Quaternion.Euler(0f, 0f, accumulatedDegrees);
+            roulettePart2.transform.localRotation = startRotation1 * Quaternion.Euler(0f, 0f, accumulatedDegrees);
             yield return null;
         }
 
