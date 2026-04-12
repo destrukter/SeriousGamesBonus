@@ -4,11 +4,11 @@ public class Ball : MonoBehaviour
 {
     [SerializeField] private BallData data;
 
-    private string runtimeName;
-    private int runtimePoints;
-    private float runtimeWeight;
-    private float runtimeSize;
-    private float runtimeLaunchVelocity;
+    protected string runtimeName;
+    protected int runtimePoints;
+    protected float runtimeWeight;
+    protected float runtimeSize;
+    protected float runtimeLaunchVelocity;
 
     private bool inHand = false;
     private bool isInPlay;
@@ -22,8 +22,9 @@ public class Ball : MonoBehaviour
 
     public BallData Data => data;
     public bool InHand => inHand;
+    public bool IsInPlay => isInPlay;
 
-    public void Initialize()
+    public virtual void Initialize()
     {
         if (data != null)
         {
@@ -47,6 +48,12 @@ public class Ball : MonoBehaviour
         stopEventSent = false;
         stillTime = 0f;
         rb = GetComponent<Rigidbody>();
+
+        OnBallInitialized();
+    }
+
+    protected virtual void OnBallInitialized()
+    {
     }
 
     private void OnMouseDown()
@@ -55,6 +62,19 @@ public class Ball : MonoBehaviour
         {
             Events.current.BallClicked(this);
         }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        Ball otherBall = collision.gameObject.GetComponent<Ball>();
+        if (otherBall != null)
+        {
+            OnCollidedWithBall(otherBall, collision);
+        }
+    }
+
+    protected virtual void OnCollidedWithBall(Ball otherBall, Collision collision)
+    {
     }
 
     public void ToggleHand()
@@ -100,7 +120,7 @@ public class Ball : MonoBehaviour
         }
     }
 
-    public int GetPoints()
+    public virtual int GetPoints()
     {
         return runtimePoints;
     }
