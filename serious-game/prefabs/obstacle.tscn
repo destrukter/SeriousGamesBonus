@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://cc4lm8isr44m2"]
+
+[ext_resource type="Script" uid="uid://48egkgi6051v" path="res://scripts/obstacle.gd" id="1_u2pes"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_feb5d"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fc0e3"]
+vertex_color_is_srgb = true
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_80nbo"]
+
+[node name="Obstacle" type="RigidBody3D" unique_id=1836114500]
+gravity_scale = 0.0
+script = ExtResource("1_u2pes")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=221837607]
+mesh = SubResource("BoxMesh_feb5d")
+surface_material_override/0 = SubResource("StandardMaterial3D_fc0e3")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1547420014]
+shape = SubResource("BoxShape3D_80nbo")

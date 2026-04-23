@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://c0alb3evp57g8"]
+
+[ext_resource type="Script" uid="uid://dsx8usvai7bpn" path="res://player.gd" id="1_fc0e3"]
+[ext_resource type="Script" uid="uid://b3hpsuhraa87y" path="res://scripts/spawner.gd" id="1_feb5d"]
+[ext_resource type="Script" uid="uid://bs3r5n47x34ox" path="res://scripts/lane_data.gd" id="2_e2o6t"]
+[ext_resource type="PackedScene" uid="uid://cc4lm8isr44m2" path="res://prefabs/obstacle.tscn" id="2_feb5d"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_e2o6t"]
+
+[node name="Game" type="Node3D" unique_id=1298179482]
+
+[node name="Player" type="Node3D" parent="." unique_id=209727015]
+script = ExtResource("1_fc0e3")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Player" unique_id=1032755812]
+mesh = SubResource("CapsuleMesh_e2o6t")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1364775651]
+transform = Transform3D(1, 0, 0, 0, 0.47473347, 0.8801296, 0, -0.8801296, 0.47473347, 0, 5, 2)
+
+[node name="Spawner" type="Node" parent="." unique_id=986740133]
+script = ExtResource("1_feb5d")
+obstacle = ExtResource("2_feb5d")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=506480191]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3101728, -2.7922525)
+
+[node name="Lanes" type="Node" parent="." unique_id=2043069263]
+script = ExtResource("2_e2o6t")
+num_lanes = 6
+
+[node name="Obstacles" type="Node" parent="." unique_id=1331148826]
